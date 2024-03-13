@@ -3,6 +3,7 @@ import numpy as np
 from skimage import io, color, util
 from skimage.metrics import structural_similarity as ssim
 from skimage.metrics import peak_signal_noise_ratio as psnr
+import metr_clah as metr
 
 def apply_clahe(image, clip_limit):
 
@@ -102,12 +103,12 @@ def add_salt_pepper_noise(image, amount):
 
 if __name__ == "__main__":
     # Загрузка изображения
-    image_path = "C://Users//winfo//PycharmProjects//blur_salt-papper-jpg//I06.jpg"
+    image_path = "F://PycharmProjects//blur_salt-papper-jpg//1.jpg"
     img = io.imread(image_path)
     original_image = io.imread(image_path)
 
     # Указание пути для сохранения JPEG-изображения
-    jpeg_path = "C://Users//winfo//PycharmProjects//blur_salt-papper-jpg//I06"
+    jpeg_path = "F://PycharmProjects//blur_salt-papper-jpg//I06"
     compressed_image = []
     qualities = []
     quality_brisque_values_cl = []

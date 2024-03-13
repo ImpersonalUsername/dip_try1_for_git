@@ -9,10 +9,3 @@ def image_quality_squared_gradient(image):
     quality = np.mean(squared_gradient)
     return quality
 
-image = cv2.imread('output_77.98_69.93_0.60.jpg')
-
-
-# Оценка качества изображения по квадрату градиента
-quality = image_quality_squared_gradient(image)
-
-print('Качество изображения (Squared Gradient):', quality)
