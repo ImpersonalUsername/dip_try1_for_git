@@ -3,4 +3,7 @@
 /__pycache__/
 /distorted_images/
 /reference_images/
+*.jpg #
+*.png #
+*.bmp #
 *.yml #
