@@ -1,0 +1,6 @@
+# created by virtualenv automatically
+*
+/__pycache__/
+/distorted_images/
+/reference_images/
+*.yml #
