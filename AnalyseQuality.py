@@ -22,7 +22,7 @@ def calculate_PSNR_quality(image1, image2):
     if len(image2.shape) == 3:
         image2 = color.rgb2gray(image2)
     mse = ((image1 - image2) ** 2).mean()
-    psnr_value = 10 * (np.log10((255 ** 2) / (mse + 1)))
+    psnr_value = 10 * (np.log10((255 ** 2) / (mse)))
     return psnr_value
 def calculate_SSIM_quality(image1, image2):
     if len(image1.shape) == 3:
