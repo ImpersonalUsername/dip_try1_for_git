@@ -58,10 +58,10 @@ def process_images_in_folders(original_folder, distorted_folder, output_folder):
 
             height, width, channels = dist_image.shape  # получаем высоту, ширину и количество каналов изображения
             clahe_result_bgr = dist_image  # Берем исходное трехканальное изображение
-            text = f'QualityBRISQUE: {quality_brisque:.2f}\nQualitySSIM: {quality_ssim:.2f}\nQualityGrad {quality_grad}\nQualityPSNR: {quality_psnr:.2f}\n'
+            text = f'QualityBRISQUE: {quality_brisque:.2f}\nQualitySSIM: {quality_ssim:.2f}\nQualityGrad {quality_grad:.2f}\nQualityPSNR: {quality_psnr:.2f}\n'
             font = cv2.FONT_HERSHEY_SIMPLEX
             font_scale = 1  # Коэффициент для масштабирования шрифта
-            font_color = (255, 0, 255)
+            font_color = (0, 255, 0)
             font_thickness = 2
             text_size = cv2.getTextSize(text, font, font_scale, font_thickness)[0]
             text_x = 10
@@ -85,7 +85,7 @@ def process_images_in_folders(original_folder, distorted_folder, output_folder):
 
 if __name__ == "__main__":
     original_folder_path = "F://PycharmProjects//blur_salt-papper-jpg//reference_images"
-    distorted_folder_path = "F://PycharmProjects//blur_salt-papper-jpg//distorted_images//blackwomen"
-    output_folder_path = "F://PycharmProjects//blur_salt-papper-jpg//distorted_images//blackwomen//changes"
+    distorted_folder_path = "F://PycharmProjects//blur_salt-papper-jpg//distorted_images//clahe_oblako"
+    output_folder_path = "F://PycharmProjects//blur_salt-papper-jpg//distorted_images//clahe_oblako//changes"
     os.makedirs(output_folder_path, exist_ok=True)
     process_images_in_folders(original_folder_path, distorted_folder_path, output_folder_path)
