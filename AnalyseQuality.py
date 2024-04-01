@@ -85,7 +85,7 @@ def process_images_in_folders(original_folder, distorted_folder, output_folder):
 
 if __name__ == "__main__":
     original_folder_path = "F://PycharmProjects//blur_salt-papper-jpg//reference_images"
-    distorted_folder_path = "F://PycharmProjects//blur_salt-papper-jpg//distorted_images//clahe_oblako"
-    output_folder_path = "F://PycharmProjects//blur_salt-papper-jpg//distorted_images//clahe_oblako//changes"
+    distorted_folder_path = "F://PycharmProjects//blur_salt-papper-jpg//distorted_images//airplane"
+    output_folder_path = "F://PycharmProjects//blur_salt-papper-jpg//distorted_images//airplane//changes"
     os.makedirs(output_folder_path, exist_ok=True)
     process_images_in_folders(original_folder_path, distorted_folder_path, output_folder_path)
