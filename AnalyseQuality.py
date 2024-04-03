@@ -3,7 +3,6 @@ import numpy as np
 import os
 from skimage import io, color, util
 from skimage.metrics import structural_similarity as ssim
-from skimage.metrics import peak_signal_noise_ratio as psnr
 def image_quality_squared_gradient(image):
     gray_image = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
     gradient_x = cv2.Sobel(gray_image, cv2.CV_64F, 1, 0, ksize=3)
@@ -37,11 +36,11 @@ def process_images_in_folders(original_folder, distorted_folder, output_folder):
     quality_grad_values = []
     quality_psnr_values = []
     quality_ssim_values = []
-
+    output_images = []
     original_image_files = [f for f in os.listdir(original_folder) if
-                            f.endswith(('.jpg', '.jpeg', '.png', '.BMP', '.bmp'))] # перебор всех изображений, находящихся в папке
+                            f.endswith(('.jpg', '.JPG','.jpeg', '.png', '.BMP', '.bmp'))] # перебор всех изображений, находящихся в папке
     distorted_image_files = [f for f in os.listdir(distorted_folder) if
-                             f.endswith(('.jpg', '.jpeg', '.png', '.BMP', '.bmp'))]
+                             f.endswith(('.jpg', '.JPG', '.jpeg', '.png', '.BMP', '.bmp'))]
 
     orig_image_path = os.path.join(original_folder, original_image_files[0])
     orig_image = cv2.imread(orig_image_path)
@@ -58,6 +57,8 @@ def process_images_in_folders(original_folder, distorted_folder, output_folder):
 
             height, width, channels = dist_image.shape  # получаем высоту, ширину и количество каналов изображения
             clahe_result_bgr = dist_image  # Берем исходное трехканальное изображение
+
+
             text = f'QualityBRISQUE: {quality_brisque:.2f}\nQualitySSIM: {quality_ssim:.2f}\nQualityGrad {quality_grad:.2f}\nQualityPSNR: {quality_psnr:.2f}\n'
             font = cv2.FONT_HERSHEY_SIMPLEX
             font_scale = 1  # Коэффициент для масштабирования шрифта
@@ -76,16 +77,37 @@ def process_images_in_folders(original_folder, distorted_folder, output_folder):
             quality_grad_values.append(quality_grad)
             quality_psnr_values.append(quality_psnr)
             quality_ssim_values.append(quality_ssim)
-
+            output_images.append((dist_image, quality_brisque, quality_psnr, quality_ssim))  # добавление изображений в массив, чтобы можно было с ними работать
             output_path = os.path.join(output_folder, f"processed_{dist_file}")
             cv2.imwrite(output_path, dist_image)
-
             file.write(
                 f'QualityBRISQUE: {quality_brisque:.2f}, SSIM: {quality_ssim:.2f}, QualityGrad: {quality_grad:.2f}, PSNR: {quality_psnr:.2f}\n')
 
+
+
+    brisque_min_quality_index = np.argmin(quality_brisque_values)
+    psnr_max_quality_index = np.argmax(quality_psnr_values)
+    ssim_max_quality_index = np.argmax(quality_ssim_values)
+    # Сохранение изображений с метркиами
+    output_image, min_quality, _, _ = output_images[brisque_min_quality_index]
+    brisque_output_image_path = f'output_image_min_quality_{min_quality:.2f}.jpg'
+    cv2.imwrite(brisque_output_image_path, output_image)
+
+    output_image, _, psnr_max_quality, _ = output_images[psnr_max_quality_index]
+    psnr_output_image_path = f'output_image_psnrmax_quality_{psnr_max_quality:.2f}.jpg'
+    cv2.imwrite(psnr_output_image_path, cv2.cvtColor(output_image, cv2.COLOR_BGR2RGB))
+
+    output_image, _, _, ssim_max_quality = output_images[ssim_max_quality_index]
+    ssim_output_image_path = f'output_image_ssimmax_quality_{ssim_max_quality:.2f}.jpg'
+    cv2.imwrite(ssim_output_image_path, cv2.cvtColor(output_image, cv2.COLOR_BGR2RGB))
+    print(
+            f'Сохранено изображение с наименьшим QualityBRISQUE как {brisque_output_image_path}\nСохранено изображение с наибольшим QualityPSNR как {psnr_output_image_path}\nСохранено изображение с наибольшим QualitySSIM как {ssim_output_image_path}')
+
+
 if __name__ == "__main__":
     original_folder_path = "F://PycharmProjects//blur_salt-papper-jpg//reference_images"
-    distorted_folder_path = "F://PycharmProjects//blur_salt-papper-jpg//distorted_images//airplane"
-    output_folder_path = "F://PycharmProjects//blur_salt-papper-jpg//distorted_images//airplane//changes"
+    distorted_folder_path = "F://PycharmProjects//blur_salt-papper-jpg//distorted_images//clahe_oblako"
+    output_folder_path = "F://PycharmProjects//blur_salt-papper-jpg//distorted_images//clahe_oblako//changes"
     os.makedirs(output_folder_path, exist_ok=True)
     process_images_in_folders(original_folder_path, distorted_folder_path, output_folder_path)
+

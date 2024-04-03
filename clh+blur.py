@@ -2,10 +2,29 @@ import cv2
 import numpy as np
 from skimage import io, color, util
 from skimage.metrics import structural_similarity as ssim
-def apply_clahe_1(image, clipLimit):
+
+
+def adaptive_tile_size(image, min_tile_size=4, max_tile_size=64, step=4):
+    """
+    Функция для адаптивного выбора размера блоков CLAHE в зависимости от размера изображения.
+
+    :param image: Изображение для анализа.
+    :param min_tile_size: Минимально возможный размер блока.
+    :param max_tile_size: Максимально возможный размер блока.
+    :param step: Шаг изменения размера блока.
+    :return: Размер блока для CLAHE.
+    """
+    # Размер изображения
+    height, width = image.shape[:2]
+
+    # Простая логика: чем больше изображение, тем больше размер блока
+    tile_size = max(min_tile_size, min(max_tile_size, step * (4 * min(width, height) // 100)))
+
+    return (tile_size, tile_size)
+def apply_clahe_1(image, clipLimit, tileGridSize):
     lab = cv2.cvtColor(image, cv2.COLOR_BGR2LAB) #  из BGR в LAB
     l, a, b = cv2.split(lab) # разделение каналов
-    clahe = cv2.createCLAHE(clipLimit = clipLimit, tileGridSize=(5, 5)) # Применение CLAHE к каналу L (яркости)
+    clahe = cv2.createCLAHE(clipLimit = clipLimit, tileGridSize = tileGridSize) # Применение CLAHE к каналу L (яркости)
     cl = clahe.apply(l)
     lab_clahe = cv2.merge((cl, a, b)) # слияние обработанного канала L с остальными каналами
     result = cv2.cvtColor(lab_clahe, cv2.COLOR_LAB2BGR)
@@ -85,9 +104,9 @@ def add_salt_pepper_noise(image, amount):
 
 if __name__ == "__main__":
     # Загрузка изображения
-    image_path = "F://PycharmProjects//blur_salt-papper-jpg//0.jpg"
-    img = cv2.imread('F://PycharmProjects//blur_salt-papper-jpg//0.jpg')
-    original_image = cv2.imread(image_path)
+    #image_path = "F://PycharmProjects//blur_salt-papper-jpg//0.jpg"
+    img = cv2.imread('F://PycharmProjects//blur_salt-papper-jpg//1.jpg')
+    #original_image = cv2.imread(image_path)
 
     # Указание пути для сохранения JPEG-изображения
     compressed_image = []
@@ -98,9 +117,11 @@ if __name__ == "__main__":
     quality_ssim_values_cl = []
     quality_grad_values = []
     amount_list = []
+    tile_generation = adaptive_tile_size(img)
+    print(tile_generation)
     #for quality in np.arange(100, -5, -5): # относится к сжатию в формат .jpeg
     for clip_limit in np.arange(0.1, 10, 0.1):
-        img_jpeg = apply_clahe_1(img, clip_limit)
+        img_jpeg = apply_clahe_1(img, clip_limit, tile_generation)
         compressed_image.append(img_jpeg)
         #BRISQUE
         quality_brisque, blur_score = calculate_brisque_quality(img_jpeg)
@@ -121,20 +142,20 @@ if __name__ == "__main__":
         # Создаем BGR-изображение для добавления текста
         height, width, channels = img_jpeg.shape  # получаем высоту, ширину и количество каналов изображения
         clahe_result_bgr = img_jpeg  #  исходное трехканальное изображение
-        text = f'clipLimit: {clip_limit:.2f}\nQualityGrad {quality_grad}\nQualityBRISQUE: {quality_brisque:.2f}\nQualityPSNR: {quality_psnr:.2f}\nQualitySSIM: {quality_ssim:.2f}'
-        font = cv2.FONT_HERSHEY_SIMPLEX
-        font_scale = 1  # Коэффициент для масштабирования шрифта
-        font_color = (100, 255, 255)
-        font_thickness = 2
-        text_size = cv2.getTextSize(text, font, font_scale, font_thickness)[0]
-        text_x = 10
-        text_y = (height + text_size[1]) // 2
-        # Разбиваем текст на строки и пишем каждую строку отдельно
-        line_spacing = 5
-        lines = text.split('\n')
-        for i, line in enumerate(lines):
-            cv2.putText(clahe_result_bgr, line, (text_x, text_y + i * (text_size[1] + line_spacing)), font, font_scale,
-                        font_color, font_thickness)
+        # text = f'clipLimit: {clip_limit:.2f}\nQualityGrad {quality_grad}\nQualityBRISQUE: {quality_brisque:.2f}\nQualityPSNR: {quality_psnr:.2f}\nQualitySSIM: {quality_ssim:.2f}'
+        # font = cv2.FONT_HERSHEY_SIMPLEX
+        # font_scale = 1  # Коэффициент для масштабирования шрифта
+        # font_color = (100, 255, 255)
+        # font_thickness = 2
+        # text_size = cv2.getTextSize(text, font, font_scale, font_thickness)[0]
+        # text_x = 10
+        # text_y = (height + text_size[1]) // 2
+        # # Разбиваем текст на строки и пишем каждую строку отдельно
+        # line_spacing = 5
+        # lines = text.split('\n')
+        # for i, line in enumerate(lines):
+        #     cv2.putText(clahe_result_bgr, line, (text_x, text_y + i * (text_size[1] + line_spacing)), font, font_scale,
+        #                 font_color, font_thickness)
         qualities.append(clip_limit)
         # Сохранение параметров
         quality_brisque_values_cl.append(quality_brisque)
