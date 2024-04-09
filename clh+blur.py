@@ -3,24 +3,28 @@ import numpy as np
 from skimage import io, color, util
 from skimage.metrics import structural_similarity as ssim
 
+def calculate_tile_grid_size(image):
+    min_pixels_per_block = 20000
+    max_pixels_per_block = 30000
 
-def adaptive_tile_size(image, min_tile_size=4, max_tile_size=64, step=4):
-    """
-    Функция для адаптивного выбора размера блоков CLAHE в зависимости от размера изображения.
-
-    :param image: Изображение для анализа.
-    :param min_tile_size: Минимально возможный размер блока.
-    :param max_tile_size: Максимально возможный размер блока.
-    :param step: Шаг изменения размера блока.
-    :return: Размер блока для CLAHE.
-    """
-    # Размер изображения
     height, width = image.shape[:2]
 
-    # Простая логика: чем больше изображение, тем больше размер блока
-    tile_size = max(min_tile_size, min(max_tile_size, step * (4 * min(width, height) // 100)))
+    total_pixels = width * height
+    best_tile_grid_size = (1, 1)
+    best_num_blocks = 1
 
-    return (tile_size, tile_size)
+    # Попробуем разные комбинации размеров блоков, начиная с 1x1 и увеличивая до половины размера изображения
+    for block_size in range(1, min(width, height) + 1):
+        num_horizontal_blocks = width // block_size
+        num_vertical_blocks = height // block_size
+        total_blocks = num_horizontal_blocks * num_vertical_blocks
+
+        if min_pixels_per_block <= block_size ** 2 <= max_pixels_per_block and total_blocks <= total_pixels:
+            if total_blocks > best_num_blocks:
+                best_tile_grid_size = (num_horizontal_blocks, num_vertical_blocks)
+                best_num_blocks = total_blocks
+
+    return best_tile_grid_size
 def apply_clahe_1(image, clipLimit, tileGridSize):
     lab = cv2.cvtColor(image, cv2.COLOR_BGR2LAB) #  из BGR в LAB
     l, a, b = cv2.split(lab) # разделение каналов
@@ -105,7 +109,7 @@ def add_salt_pepper_noise(image, amount):
 if __name__ == "__main__":
     # Загрузка изображения
     #image_path = "F://PycharmProjects//blur_salt-papper-jpg//0.jpg"
-    img = cv2.imread('F://PycharmProjects//blur_salt-papper-jpg//1.jpg')
+    img = cv2.imread('F://PycharmProjects//blur_salt-papper-jpg//0.jpg')
     #original_image = cv2.imread(image_path)
 
     # Указание пути для сохранения JPEG-изображения
@@ -117,7 +121,7 @@ if __name__ == "__main__":
     quality_ssim_values_cl = []
     quality_grad_values = []
     amount_list = []
-    tile_generation = adaptive_tile_size(img)
+    tile_generation = calculate_tile_grid_size(img)
     print(tile_generation)
     #for quality in np.arange(100, -5, -5): # относится к сжатию в формат .jpeg
     for clip_limit in np.arange(0.1, 10, 0.1):

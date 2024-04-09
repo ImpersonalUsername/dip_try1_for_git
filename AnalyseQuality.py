@@ -100,6 +100,7 @@ def process_images_in_folders(original_folder, distorted_folder, output_folder):
     output_image, _, _, ssim_max_quality = output_images[ssim_max_quality_index]
     ssim_output_image_path = f'output_image_ssimmax_quality_{ssim_max_quality:.2f}.jpg'
     cv2.imwrite(ssim_output_image_path, cv2.cvtColor(output_image, cv2.COLOR_BGR2RGB))
+
     print(
             f'Сохранено изображение с наименьшим QualityBRISQUE как {brisque_output_image_path}\nСохранено изображение с наибольшим QualityPSNR как {psnr_output_image_path}\nСохранено изображение с наибольшим QualitySSIM как {ssim_output_image_path}')
 
